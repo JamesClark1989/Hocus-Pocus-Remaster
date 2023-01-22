@@ -69,8 +69,11 @@ class Main:
         self.crown_sprites = pygame.sprite.Group()
         self.end_of_level_sprites = pygame.sprite.Group()
         self.health_pickups = pygame.sprite.Group()
+        self.key_wall_sprites = pygame.sprite.Group()
+        self.key_sprites = pygame.sprite.Group()
 
         self.won_game = False
+        self.has_key = False
 
         self.setup()
         self.overlay = Overlay(self.player)
@@ -110,6 +113,10 @@ class Main:
 
         for x,y,surf in tmx_map.get_layer_by_name('Lava').tiles():
             AnimatedTile((x * tile_size,y * tile_size),surf,[self.all_sprites,self.environment_hazard_sprites])
+
+        # Key walls
+        for x,y,surf in tmx_map.get_layer_by_name('Key Wall').tiles():
+            CollisionTile((x * tile_size,y * tile_size),surf,[self.all_sprites, self.collision_sprites, self.key_wall_sprites])
 
         # Tiles without collision. LAYERS is in settings.py with z depth
         for layer in ['BG Detail']:
@@ -166,6 +173,13 @@ class Main:
                     path = 'graphics\pickups\crown',
                     points = 5000)
 
+            if obj.name == "Key":
+                Pickup(
+                    pos = (obj.x,obj.y), 
+                    groups = [self.all_sprites, self.key_sprites], 
+                    path = 'graphics\pickups\key',
+                    points = 5000)
+
             if obj.name == "Finish_Gem":
                 Pickup(
                     pos = (obj.x,obj.y), 
@@ -203,7 +217,7 @@ class Main:
         for obstacle in self.collision_sprites.sprites():
             pygame.sprite.spritecollide(obstacle, self.bullet_sprites, True)
 
-        # Player damage collision
+        # Player collision handler
         for sprite in self.vulnerable_player_sprite.sprites():
             if pygame.sprite.spritecollide(sprite, self.enemy_bullet_sprites, True, pygame.sprite.collide_mask):
                 sprite.damage()
@@ -220,10 +234,21 @@ class Main:
             if pygame.sprite.spritecollide(sprite, self.crown_sprites, True, pygame.sprite.collide_mask):
                 sprite.pickup(5000)
                 self.overlay.set_score(5000)   
+
+            if pygame.sprite.spritecollide(sprite, self.key_sprites, True, pygame.sprite.collide_mask):
+                sprite.pickup(5000)
+                self.overlay.set_score(5000)  
+                self.has_key = True 
+
+            if pygame.sprite.spritecollide(sprite, self.key_wall_sprites, False, pygame.sprite.collide_mask):
+                if self.has_key:
+                    for wall in self.key_wall_sprites:
+                        wall.kill()
             
             if pygame.sprite.spritecollide(sprite, self.health_pickups, False, pygame.sprite.collide_mask):
                 if sprite.health_pickup() == True:
                     pygame.sprite.spritecollide(sprite, self.health_pickups, True, pygame.sprite.collide_mask)
+
             if pygame.sprite.spritecollide(sprite, self.end_of_level_sprites, True, pygame.sprite.collide_mask):
 
                 self.music.stop()

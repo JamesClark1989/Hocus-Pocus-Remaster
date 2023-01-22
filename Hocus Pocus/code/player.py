@@ -5,7 +5,7 @@ from entity import Entity
 
 class Player(Entity):
 
-    def __init__(self, pos, groups, path, collision_sprites, shoot):
+    def __init__(self, pos, groups, path, collision_sprites, shoot, point):
         super().__init__(pos, path, groups, shoot)
 
         # collision
@@ -13,9 +13,13 @@ class Player(Entity):
 
         # Vertical movement
         self.gravity = 30
-        self.jump_speed = 1200
+        self.jump_speed = 1000
         self.on_floor = False
         self.moving_floor = None
+
+        self.point = point
+
+        self.rect.width = 30
 
         self.health = 10
 
@@ -27,6 +31,10 @@ class Player(Entity):
         # Jump
         if self.direction.y != 0 and not self.on_floor:
             self.status = self.status.split('_')[0] + '_jump'
+
+        # Shoot
+        if self.can_shoot == False:
+            self.status = self.status.split('_')[0] + '_shoot'
 
         # Duck
         if self.on_floor and self.duck:
@@ -65,11 +73,11 @@ class Player(Entity):
         # Shoot
         if keys[pygame.K_SPACE] and self.can_shoot:
             direction = Vector2(1,0) if self.status.split('_')[0] == 'right' else Vector2(-1,0)
-            pos = self.rect.center + direction * 60
-            y_offset = Vector2(0,-16) if not self.duck else Vector2(0,10)
+            pos = self.rect.center + direction * 40
+            y_offset = Vector2(0,-5) if not self.duck else Vector2(0,10)
             self.shoot(pos + y_offset, direction, self)
 
-            self.bullet_sound.play()
+            # self.bullet_sound.play()
 
             self.can_shoot = False
             self.shoot_time = pygame.time.get_ticks()
@@ -81,7 +89,6 @@ class Player(Entity):
                 
                 if direction == "horizontal":
                     # left collision
-                    print(self.rect.left)
                     if self.rect.left <= sprite.rect.right and self.old_rect.left >= sprite.old_rect.right:
                         self.rect.left = sprite.rect.right
 
@@ -134,6 +141,15 @@ class Player(Entity):
         if self.health <= 0:
             pygame.quit()
             sys.exit()
+
+    def pickup(self, points):
+        direction = Vector2(0,-1)
+        pos = self.rect.topright
+        self.point(pos, direction,points)
+
+    def finish_game(self):
+        pygame.quit()
+        sys.exit()
 
     def update(self,dt):
         self.old_rect = self.rect.copy()

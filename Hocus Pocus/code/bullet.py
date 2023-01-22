@@ -3,10 +3,9 @@ from settings import *
 from pygame.math import Vector2
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self,pos,surf,direction, groups):
+    def __init__(self,pos,surf,direction, groups, speed):
         super().__init__(groups)
 
-        
         self.image = surf
         # Flip image if direction x is negative
         if direction.x < 0:
@@ -17,7 +16,7 @@ class Bullet(pygame.sprite.Sprite):
 
         # float based movement
         self.direction = direction
-        self.speed = 1200
+        self.speed = speed
         self.pos = Vector2(self.rect.center)
 
         self.start_time = pygame.time.get_ticks()

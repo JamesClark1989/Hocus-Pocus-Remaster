@@ -15,8 +15,8 @@ class Entity(pygame.sprite.Sprite):
 
         # Image setup        
         self.image = self.animations[self.status][self.frame_index]
-        self.rect = self.image.get_rect(topleft = pos)
-        self.rect.width = 30
+        self.rect = self.image.get_rect(midbottom = pos)
+        
         self.old_rect = self.rect.copy()
         self.z = LAYERS['Level']   
         self.mask = pygame.mask.from_surface(self.image)     

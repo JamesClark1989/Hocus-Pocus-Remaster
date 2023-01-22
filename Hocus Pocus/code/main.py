@@ -1,12 +1,14 @@
 import pygame, sys
 from settings import *
 from pytmx.util_pygame import load_pygame
-from tile import Tile, CollisionTile, MovingPlatform, AnimatedTile
+from tile import Tile, CollisionTile, AnimatedTile
 from player import Player
 from pygame.math import Vector2
 from bullet import Bullet, FireAnimation
-from enemy import Enemy,Dracodile
+from enemy import Enemy,Dracodile,ThunderDevil
+from pickup import Pickup
 from overlay import Overlay
+from points import Points
 
 class AllSprites(pygame.sprite.Group):
     # This class is basically a custom camera
@@ -36,7 +38,7 @@ class AllSprites(pygame.sprite.Group):
         # Blit the bg image and offset
         for x in range(self.sky_num):
             x_pos = -self.padding + (x * self.sky_width)
-            self.display_surface.blit(self.bg_sky,(x_pos - self.offset.x / 2.5, 120))
+            self.display_surface.blit(self.bg_sky,(x_pos - self.offset.x / 2.5, 0))
 
         # blit all sprites
         for sprite in sorted(self.sprites(), key = lambda sprite: sprite.z):
@@ -54,16 +56,29 @@ class Main:
         # groups
         self.all_sprites = AllSprites()
         self.collision_sprites = pygame.sprite.Group()
-        self.platform_sprites = pygame.sprite.Group()
+        self.player_bullet_sprites = pygame.sprite.Group()
+        self.enemy_bullet_sprites = pygame.sprite.Group()
+        self.walking_enemy_sprites = pygame.sprite.Group()
         self.bullet_sprites = pygame.sprite.Group()
         self.environment_hazard_sprites = pygame.sprite.Group()
-        self.vulnerable_sprites = pygame.sprite.Group()
+        self.vulnerable_enemy_sprites = pygame.sprite.Group()
+        self.vulnerable_player_sprite = pygame.sprite.Group()
+        self.gem_sprites = pygame.sprite.Group()
+        self.chalice_sprites = pygame.sprite.Group()
+        self.crown_sprites = pygame.sprite.Group()
+        self.end_of_level_sprites = pygame.sprite.Group()
 
         self.setup()
         self.overlay = Overlay(self.player)
 
-        # Bullet iamges
-        self.bullet_surf = pygame.image.load('graphics/bullet.png').convert_alpha()
+        # Bullet images
+        self.bullet_surf = pygame.image.load('graphics/fire/bullet.png').convert_alpha()
+        self.enemy_bullet_surf = pygame.image.load('graphics/enemy_fire/enemy_fire.png').convert_alpha()
+
+        # Points images
+        self.five_hundred_points = pygame.image.load('graphics/points/500.png').convert_alpha()
+        self.one_thousand_points = pygame.image.load('graphics/points/1000.png').convert_alpha()
+        self.five_thousand_points = pygame.image.load('graphics/points/5000.png').convert_alpha()
 
         # Music
         self.music = pygame.mixer.Sound('audio/music.ogg')
@@ -80,7 +95,6 @@ class Main:
         for x,y,surf in tmx_map.get_layer_by_name('Level').tiles():
             CollisionTile((x * tile_size,y * tile_size),surf,[self.all_sprites, self.collision_sprites])
 
-
         for x,y,surf in tmx_map.get_layer_by_name('Lava').tiles():
             AnimatedTile((x * tile_size,y * tile_size),surf,[self.all_sprites,self.environment_hazard_sprites])
 
@@ -95,61 +109,121 @@ class Main:
                 # Setup Player
                 self.player = Player(
                     pos = (obj.x,obj.y), 
-                    groups = [self.all_sprites, self.vulnerable_sprites],
+                    groups = [self.all_sprites, self.vulnerable_player_sprite],
                     path = 'graphics\player', 
                     collision_sprites = self.collision_sprites, 
-                    shoot = self.shoot)
+                    shoot = self.player_shoot,
+                    point = self.get_points)
             if obj.name == "Dracodile":                
                 Dracodile(
                     pos = (obj.x,obj.y), 
-                    groups = [self.all_sprites, self.vulnerable_sprites], 
+                    groups = [self.all_sprites, self.vulnerable_enemy_sprites, self.walking_enemy_sprites], 
                     path = 'graphics\dracodile', 
                     collision_sprites = self.collision_sprites, 
-                    shoot = self.shoot, 
+                    shoot = self.enemy_shoot, 
                     player = self.player)
-        # self.platform_border_rects = []
-        # for obj in tmx_map.get_layer_by_name("Platforms"):
-        #     if obj.name == "Platform":
-        #         MovingPlatform((obj.x,obj.y),obj.image,[self.all_sprites, self.collision_sprites, self.platform_sprites])
-        #     else:
-        #         border_rect = pygame.Rect(obj.x,obj.y,obj.width,obj.height)
-        #         self.platform_border_rects.append(border_rect)
+            if obj.name == "Thunder_Devil":
+                ThunderDevil(
+                    pos = (obj.x,obj.y), 
+                    groups = [self.all_sprites, self.vulnerable_enemy_sprites], 
+                    path = 'graphics\devil', 
+                    collision_sprites = self.collision_sprites, 
+                    shoot = self.enemy_shoot, 
+                    player = self.player)
+
+            if obj.name == "Red_Gem":
+                Pickup(
+                    pos = (obj.x,obj.y), 
+                    groups = [self.all_sprites, self.gem_sprites], 
+                    path = 'graphics\pickups\\red_gem', 
+                    player = self.player,
+                    points = 500)
+            
+            if obj.name == "Chalice":
+                Pickup(
+                    pos = (obj.x,obj.y), 
+                    groups = [self.all_sprites, self.chalice_sprites], 
+                    path = 'graphics\pickups\chalice', 
+                    player = self.player,
+                    points = 1000)
+
+            if obj.name == "Crown":
+                Pickup(
+                    pos = (obj.x,obj.y), 
+                    groups = [self.all_sprites, self.crown_sprites], 
+                    path = 'graphics\pickups\crown', 
+                    player = self.player,
+                    points = 5000)
+
+            if obj.name == "Finish_Gem":
+                Pickup(
+                    pos = (obj.x,obj.y), 
+                    groups = [self.all_sprites, self.end_of_level_sprites], 
+                    path = 'graphics\pickups\\finish_gem', 
+                    player = self.player,
+                    points = 5000)
+
+        self.platform_border_rects = []
+        for obj in tmx_map.get_layer_by_name("Enemy Blockers"):
+            if obj.name == "Blocker":
+                border_rect = pygame.Rect(obj.x,obj.y,obj.width,obj.height)
+                self.platform_border_rects.append(border_rect)
+
 
     def platform_collisions(self):
-        for platform in self.platform_sprites.sprites():
+        for walking_enemy in self.walking_enemy_sprites.sprites():
             for border in self.platform_border_rects:
-                # Bounce the platforms
-                if platform.rect.colliderect(border):
-                    if platform.direction.y < 0: # up
-                        platform.rect.top = border.bottom
-                        platform.pos.y = platform.rect.y
-                        platform.direction.y = 1
+                # Bounce the Enemies
+                if walking_enemy.rect.colliderect(border):
+                    walking_enemy.change_direction(-1)
+                    if walking_enemy.direction.x == 1: # up
+                        walking_enemy.direction.x == -1
                     else: # down
-                        platform.rect.bottom = border.top
-                        platform.pos.y = platform.rect.y
-                        platform.direction.y = -1
-
-            if platform.rect.colliderect(self.player.rect) and self.player.rect.centery > platform.rect.centery:
-                platform.rect.bottom = self.player.rect.top
-                platform.pos.y = platform.rect.y
-                platform.direction.y = -1
+                        walking_enemy.direction.x == 1
 
     def bullet_collisions(self):
         # obstacle collisions
         for obstacle in self.collision_sprites.sprites():
             pygame.sprite.spritecollide(obstacle, self.bullet_sprites, True)
 
-        # Entities
-        for sprite in self.vulnerable_sprites.sprites():
-            if pygame.sprite.spritecollide(sprite, self.bullet_sprites, True, pygame.sprite.collide_mask):
+        # Player damage collision
+        for sprite in self.vulnerable_player_sprite.sprites():
+            if pygame.sprite.spritecollide(sprite, self.enemy_bullet_sprites, True, pygame.sprite.collide_mask):
                 sprite.damage()
             if pygame.sprite.spritecollide(sprite, self.environment_hazard_sprites, False, pygame.sprite.collide_mask):
                 sprite.damage()
-        
-    def shoot(self, pos, direction, entity):
-        Bullet(pos,self.bullet_surf,direction,[self.all_sprites, self.bullet_sprites])
+            if pygame.sprite.spritecollide(sprite, self.vulnerable_enemy_sprites, False, pygame.sprite.collide_mask):
+                sprite.damage()
+            if pygame.sprite.spritecollide(sprite, self.gem_sprites, True, pygame.sprite.collide_mask):
+                sprite.pickup(500)
+            if pygame.sprite.spritecollide(sprite, self.chalice_sprites, True, pygame.sprite.collide_mask):
+                sprite.pickup(1000)
+            if pygame.sprite.spritecollide(sprite, self.crown_sprites, True, pygame.sprite.collide_mask):
+                sprite.pickup(5000)   
 
-        FireAnimation(entity, self.fire_surfs, direction, self.all_sprites)
+            if pygame.sprite.spritecollide(sprite, self.end_of_level_sprites, True, pygame.sprite.collide_mask):
+                sprite.finish_game()
+
+        # Enemy collisions
+        for sprite in self.vulnerable_enemy_sprites.sprites():
+            if pygame.sprite.spritecollide(sprite, self.player_bullet_sprites, True, pygame.sprite.collide_mask):
+                sprite.damage()
+
+        
+    def player_shoot(self, pos, direction, entity):
+        Bullet(pos,self.bullet_surf,direction,[self.all_sprites, self.bullet_sprites, self.player_bullet_sprites], 1200)
+
+        # FireAnimation(entity, self.fire_surfs, direction, self.all_sprites)
+    def enemy_shoot(self, pos, direction, entity):
+        Bullet(pos,self.enemy_bullet_surf,direction,[self.all_sprites, self.bullet_sprites, self.enemy_bullet_sprites], 800)
+
+    def get_points(self, pos,direction, points):
+        if points == 500:
+            Points(pos,self.five_hundred_points,direction,[self.all_sprites])
+        elif points == 1000:
+            Points(pos,self.one_thousand_points,direction,[self.all_sprites])
+        elif points == 5000:
+            Points(pos,self.five_thousand_points,direction,[self.all_sprites])
 
     def run(self):
         while True:

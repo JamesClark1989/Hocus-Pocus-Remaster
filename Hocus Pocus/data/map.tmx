@@ -266,7 +266,7 @@
 </data>
  </layer>
  <objectgroup id="3" name="Entities">
-  <object id="1" name="Player" x="827.379" y="1710.22">
+  <object id="1" name="Player" x="845.379" y="1766.22">
    <point/>
   </object>
   <object id="3" name="Dracodile" x="1146.24" y="2793.28">

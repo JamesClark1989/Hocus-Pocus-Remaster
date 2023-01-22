@@ -221,16 +221,21 @@ class Main:
         for sprite in self.vulnerable_player_sprite.sprites():
             if pygame.sprite.spritecollide(sprite, self.enemy_bullet_sprites, True, pygame.sprite.collide_mask):
                 sprite.damage()
+
             if pygame.sprite.spritecollide(sprite, self.environment_hazard_sprites, False, pygame.sprite.collide_mask):
                 sprite.damage()
+
             if pygame.sprite.spritecollide(sprite, self.vulnerable_enemy_sprites, False, pygame.sprite.collide_mask):
                 sprite.damage()
+
             if pygame.sprite.spritecollide(sprite, self.gem_sprites, True, pygame.sprite.collide_mask):
                 sprite.pickup(500)
                 self.overlay.set_score(500)
+
             if pygame.sprite.spritecollide(sprite, self.chalice_sprites, True, pygame.sprite.collide_mask):
                 sprite.pickup(1000)
                 self.overlay.set_score(1000)
+
             if pygame.sprite.spritecollide(sprite, self.crown_sprites, True, pygame.sprite.collide_mask):
                 sprite.pickup(5000)
                 self.overlay.set_score(5000)   
@@ -238,6 +243,7 @@ class Main:
             if pygame.sprite.spritecollide(sprite, self.key_sprites, True, pygame.sprite.collide_mask):
                 sprite.pickup(5000)
                 self.overlay.set_score(5000)  
+                self.overlay.got_key()
                 self.has_key = True 
 
             if pygame.sprite.spritecollide(sprite, self.key_wall_sprites, False, pygame.sprite.collide_mask):

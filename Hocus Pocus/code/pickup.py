@@ -5,7 +5,7 @@ import os
 import math
 
 class Pickup(pygame.sprite.Sprite):
-    def __init__(self, pos, path, groups, points, player):
+    def __init__(self, pos, path, groups, points):
         super().__init__(groups)
 
         # Graphics setup

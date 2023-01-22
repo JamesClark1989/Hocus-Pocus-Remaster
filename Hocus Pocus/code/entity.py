@@ -15,15 +15,16 @@ class Entity(pygame.sprite.Sprite):
 
         # Image setup        
         self.image = self.animations[self.status][self.frame_index]
+
         self.rect = self.image.get_rect(midbottom = pos)
-        
         self.old_rect = self.rect.copy()
+        
         self.z = LAYERS['Level']   
         self.mask = pygame.mask.from_surface(self.image)     
 
         # float based movement
         self.direction = Vector2()
-        self.pos = Vector2(self.rect.topleft)
+        self.pos = Vector2(self.rect.midbottom)
         self.speed = 500        
 
         # Shooting setup
@@ -31,19 +32,13 @@ class Entity(pygame.sprite.Sprite):
         self.can_shoot = True
         self.shoot_time = None
         self.cooldown = 200
-        self.duck = False
+        self.shoot_up = False
 
         # Health
         self.health = 3
         self.is_vulnerable = True
         self.hit_time = None
         self.invul_duration = 300
-        
-        # Sound
-        # self.hit_sound = pygame.mixer.Sound('audio/hit.wav')
-        # self.hit_sound.set_volume(.3)
-        # self.bullet_sound = pygame.mixer.Sound('audio/bullet.wav')
-        # self.bullet_sound.set_volume(.3)
 
     def blink(self):
         if not self.is_vulnerable:

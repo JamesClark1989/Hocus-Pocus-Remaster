@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.1" orientation="orthogonal" renderorder="right-down" width="300" height="60" tilewidth="48" tileheight="48" infinite="0" nextlayerid="7" nextobjectid="97">
+<map version="1.9" tiledversion="1.9.1" orientation="orthogonal" renderorder="right-down" width="300" height="60" tilewidth="48" tileheight="48" infinite="0" nextlayerid="7" nextobjectid="110">
  <editorsettings>
   <chunksize width="48" height="48"/>
  </editorsettings>
@@ -266,7 +266,7 @@
 </data>
  </layer>
  <objectgroup id="3" name="Entities">
-  <object id="1" name="Player" x="246.046" y="2801.55">
+  <object id="1" name="Player" x="245.379" y="2656.22">
    <point/>
   </object>
   <object id="3" name="Dracodile" x="1146.24" y="2793.28">
@@ -308,16 +308,16 @@
   <object id="22" name="Dracodile" x="2726.67" y="2396">
    <point/>
   </object>
-  <object id="23" name="Dracodile" x="3000" y="2540">
+  <object id="23" name="Dracodile" x="3005" y="2541">
    <point/>
   </object>
   <object id="24" name="Dracodile" x="2863.67" y="2399.83">
    <point/>
   </object>
-  <object id="25" name="Dracodile" x="2837.33" y="2541.33">
+  <object id="25" name="Dracodile" x="2849.33" y="2540.33">
    <point/>
   </object>
-  <object id="26" name="Dracodile" x="2693.33" y="2542.67">
+  <object id="26" name="Dracodile" x="2709.33" y="2540.67">
    <point/>
   </object>
   <object id="27" name="Thunder_Devil" x="3220" y="1756">
@@ -465,6 +465,45 @@
    <point/>
   </object>
   <object id="96" name="Dracodile" x="838" y="1904">
+   <point/>
+  </object>
+  <object id="97" name="Red_Gem" x="1124" y="2640">
+   <point/>
+  </object>
+  <object id="98" name="Red_Gem" x="966" y="2638">
+   <point/>
+  </object>
+  <object id="99" name="Chalice" x="2042" y="2400">
+   <point/>
+  </object>
+  <object id="100" name="Chalice" x="3008" y="2832">
+   <point/>
+  </object>
+  <object id="101" name="Red_Gem" x="2942" y="2724">
+   <point/>
+  </object>
+  <object id="102" name="Red_Gem" x="3082" y="2722">
+   <point/>
+  </object>
+  <object id="103" name="Health_Potion" x="2629" y="2686">
+   <point/>
+  </object>
+  <object id="104" name="Health_Potion" x="823" y="2253">
+   <point/>
+  </object>
+  <object id="105" name="Crown" x="1094" y="2250">
+   <point/>
+  </object>
+  <object id="106" name="Red_Gem" x="1382" y="2256">
+   <point/>
+  </object>
+  <object id="107" name="Red_Gem" x="1624" y="2258">
+   <point/>
+  </object>
+  <object id="108" name="Health_Potion" x="1424" y="1920">
+   <point/>
+  </object>
+  <object id="109" name="Health_Potion" x="3906" y="2060">
    <point/>
   </object>
  </objectgroup>

@@ -4,11 +4,12 @@ from pytmx.util_pygame import load_pygame
 from tile import Tile, CollisionTile, AnimatedTile
 from player import Player
 from pygame.math import Vector2
-from bullet import Bullet, FireAnimation
-from enemy import Enemy,Dracodile,ThunderDevil
+from bullet import Bullet
+from enemy import Dracodile,ThunderDevil
 from pickup import Pickup
 from overlay import Overlay
 from points import Points
+from win import WinScreen
 
 class AllSprites(pygame.sprite.Group):
     # This class is basically a custom camera
@@ -50,7 +51,7 @@ class Main:
     def __init__(self):
         pygame.init()
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-        pygame.display.set_caption("Contra")
+        pygame.display.set_caption("Hocus Pocus")
         self.clock = pygame.time.Clock()
 
         # groups
@@ -67,12 +68,17 @@ class Main:
         self.chalice_sprites = pygame.sprite.Group()
         self.crown_sprites = pygame.sprite.Group()
         self.end_of_level_sprites = pygame.sprite.Group()
+        self.health_pickups = pygame.sprite.Group()
+
+        self.won_game = False
 
         self.setup()
         self.overlay = Overlay(self.player)
+        self.win_screen = WinScreen()
 
         # Bullet images
         self.bullet_surf = pygame.image.load('graphics/fire/bullet.png').convert_alpha()
+        self.bullet_up_surf = pygame.image.load('graphics/fire_up/fire_up.png').convert_alpha()
         self.enemy_bullet_surf = pygame.image.load('graphics/enemy_fire/enemy_fire.png').convert_alpha()
 
         # Points images
@@ -84,6 +90,9 @@ class Main:
         self.music = pygame.mixer.Sound('audio/music.ogg')
         self.music.play(loops = -1)
         self.music.set_volume(.3)
+
+        # Misc
+        self.player_start_pos = None
 
 
     def setup(self):
@@ -106,9 +115,10 @@ class Main:
         # Setup player
         for obj in tmx_map.get_layer_by_name('Entities'):
             if obj.name == "Player":
+                self.player_start_pos = (obj.x,obj.y)
                 # Setup Player
                 self.player = Player(
-                    pos = (obj.x,obj.y), 
+                    pos = self.player_start_pos, 
                     groups = [self.all_sprites, self.vulnerable_player_sprite],
                     path = 'graphics\player', 
                     collision_sprites = self.collision_sprites, 
@@ -135,33 +145,36 @@ class Main:
                 Pickup(
                     pos = (obj.x,obj.y), 
                     groups = [self.all_sprites, self.gem_sprites], 
-                    path = 'graphics\pickups\\red_gem', 
-                    player = self.player,
+                    path = 'graphics\pickups\\red_gem',
                     points = 500)
             
             if obj.name == "Chalice":
                 Pickup(
                     pos = (obj.x,obj.y), 
                     groups = [self.all_sprites, self.chalice_sprites], 
-                    path = 'graphics\pickups\chalice', 
-                    player = self.player,
+                    path = 'graphics\pickups\chalice',
                     points = 1000)
 
             if obj.name == "Crown":
                 Pickup(
                     pos = (obj.x,obj.y), 
                     groups = [self.all_sprites, self.crown_sprites], 
-                    path = 'graphics\pickups\crown', 
-                    player = self.player,
+                    path = 'graphics\pickups\crown',
                     points = 5000)
 
             if obj.name == "Finish_Gem":
                 Pickup(
                     pos = (obj.x,obj.y), 
                     groups = [self.all_sprites, self.end_of_level_sprites], 
-                    path = 'graphics\pickups\\finish_gem', 
-                    player = self.player,
+                    path = 'graphics\pickups\\finish_gem',
                     points = 5000)
+
+            if obj.name == "Health_Potion":
+                Pickup(
+                    pos = (obj.x,obj.y), 
+                    groups = [self.all_sprites, self.health_pickups], 
+                    path = 'graphics\pickups\health_potion',
+                    points = 0)
 
         self.platform_border_rects = []
         for obj in tmx_map.get_layer_by_name("Enemy Blockers"):
@@ -196,13 +209,19 @@ class Main:
                 sprite.damage()
             if pygame.sprite.spritecollide(sprite, self.gem_sprites, True, pygame.sprite.collide_mask):
                 sprite.pickup(500)
+                self.overlay.set_score(500)
             if pygame.sprite.spritecollide(sprite, self.chalice_sprites, True, pygame.sprite.collide_mask):
                 sprite.pickup(1000)
+                self.overlay.set_score(1000)
             if pygame.sprite.spritecollide(sprite, self.crown_sprites, True, pygame.sprite.collide_mask):
-                sprite.pickup(5000)   
-
+                sprite.pickup(5000)
+                self.overlay.set_score(5000)   
+            
+            if pygame.sprite.spritecollide(sprite, self.health_pickups, False, pygame.sprite.collide_mask):
+                if sprite.health_pickup() == True:
+                    pygame.sprite.spritecollide(sprite, self.health_pickups, True, pygame.sprite.collide_mask)
             if pygame.sprite.spritecollide(sprite, self.end_of_level_sprites, True, pygame.sprite.collide_mask):
-                sprite.finish_game()
+                self.won_game = True
 
         # Enemy collisions
         for sprite in self.vulnerable_enemy_sprites.sprites():
@@ -210,11 +229,14 @@ class Main:
                 sprite.damage()
 
         
-    def player_shoot(self, pos, direction, entity):
-        Bullet(pos,self.bullet_surf,direction,[self.all_sprites, self.bullet_sprites, self.player_bullet_sprites], 1200)
+    def player_shoot(self, pos, direction, shooting_up):
+        
+        if not shooting_up:
+            Bullet(pos,self.bullet_surf,direction,[self.all_sprites, self.bullet_sprites, self.player_bullet_sprites], 1200)
+        else:
+            Bullet(pos,self.bullet_up_surf,direction,[self.all_sprites, self.bullet_sprites, self.player_bullet_sprites], 1200)
 
-        # FireAnimation(entity, self.fire_surfs, direction, self.all_sprites)
-    def enemy_shoot(self, pos, direction, entity):
+    def enemy_shoot(self, pos, direction):
         Bullet(pos,self.enemy_bullet_surf,direction,[self.all_sprites, self.bullet_sprites, self.enemy_bullet_sprites], 800)
 
     def get_points(self, pos,direction, points):
@@ -231,15 +253,24 @@ class Main:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN and self.won_game:
+                        pygame.quit()
+                        sys.exit()
 
             dt = self.clock.tick() / 1000
-            self.display_surface.fill((249, 131, 103))
+            self.display_surface.fill((0, 0, 0))
 
-            self.platform_collisions()
-            self.all_sprites.update(dt)
-            self.bullet_collisions()
-            self.all_sprites.custom_draw(self.player)
-            self.overlay.display()
+            
+            if self.won_game:
+                self.win_screen.display()
+            else:
+                self.platform_collisions()
+                self.all_sprites.update(dt)
+                self.bullet_collisions()
+                self.all_sprites.custom_draw(self.player)
+                self.overlay.display()
+
 
             pygame.display.update()
 

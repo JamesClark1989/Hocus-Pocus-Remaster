@@ -4,55 +4,6 @@ from pygame.math import Vector2
 from entity import Entity
 import random
 
-class Enemy(Entity):
-    def __init__(self, pos, groups, path, collision_sprites, shoot, player):
-        super().__init__(pos, path, groups, shoot)
-        self.player = player
-        self.collision_sprites = collision_sprites
-        # for sprite in collision_sprites.sprites():
-        #     if sprite.rect.collidepoint(self.rect.midbottom):
-        #         self.rect.bottom = sprite.rect.top
-        self.cooldown = 1000
-
-        self.direction.x = 1
-
-    def get_status(self):
-        if self.player.rect.centerx < self.rect.centerx:
-            self.status = 'left'
-        else:
-            self.status = 'right'
-
-    def check_fire(self):
-        enemy_pos = Vector2(self.rect.center)
-        player_pos = Vector2(self.player.rect.center)
-
-        distance = (player_pos - enemy_pos).magnitude()
-        same_y = True if self.rect.top - 20 < player_pos.y < self.rect.bottom + 20 else False
-
-        if distance < 600 and same_y and self.can_shoot:
-            self.bullet_sound.play()
-
-            bullet_direction = Vector2(1,0) if self.status == 'right' else Vector2(-1,0)
-            y_offset = Vector2(0,-16)
-            pos = self.rect.center + bullet_direction * 70
-            self.shoot(pos + y_offset, bullet_direction, self)
-
-            self.can_shoot = False
-            self.shoot_time = pygame.time.get_ticks()
-
-    def update(self, dt):
-        self.get_status()
-        
-        self.animate(dt)
-        self.blink()
-
-        # self.shoot_timer()
-        # self.invul_timer()
-        # self.check_fire()
-
-        # Death
-        self.check_death()
-
 class Dracodile(Entity):
     def __init__(self, pos, groups, path, collision_sprites, shoot, player):
         super().__init__(pos, path, groups, shoot)
@@ -63,9 +14,6 @@ class Dracodile(Entity):
         self.speed = 100
 
         self.rect.width = 30
-        # for sprite in collision_sprites.sprites():
-        #     if sprite.rect.collidepoint(self.rect.midbottom):
-        #         self.rect.bottom = sprite.rect.top
         self.cooldown = 1000
 
     def get_status(self):
@@ -86,7 +34,7 @@ class Dracodile(Entity):
             bullet_direction = Vector2(1,0) if self.status == 'right' else Vector2(-1,0)
             y_offset = Vector2(0,-6)
             pos = self.rect.center + bullet_direction * 30
-            self.shoot(pos + y_offset, bullet_direction, self)
+            self.shoot(pos + y_offset, bullet_direction)
 
             self.can_shoot = False
             self.shoot_time = pygame.time.get_ticks()
@@ -178,12 +126,11 @@ class ThunderDevil(Entity):
         same_y = True if self.rect.top - 20 < player_pos.y < self.rect.bottom + 20 else False
 
         if distance < 600 and same_y and self.can_shoot:
-            self.bullet_sound.play()
 
             bullet_direction = Vector2(1,0) if self.status == 'right' else Vector2(-1,0)
             y_offset = Vector2(0,-16)
             pos = self.rect.center + bullet_direction * 70
-            self.shoot(pos + y_offset, bullet_direction, self)
+            self.shoot(pos + y_offset, bullet_direction)
 
             self.can_shoot = False
             self.shoot_time = pygame.time.get_ticks()

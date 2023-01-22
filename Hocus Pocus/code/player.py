@@ -8,6 +8,8 @@ class Player(Entity):
     def __init__(self, pos, groups, path, collision_sprites, shoot, point):
         super().__init__(pos, path, groups, shoot)
 
+        self.starting_pos = pos
+
         # collision
         self.collision_sprites = collision_sprites
 
@@ -21,7 +23,7 @@ class Player(Entity):
 
         self.rect.width = 30
 
-        self.health = 10
+        self.health = 5
 
     def get_status(self):
         # Idle
@@ -36,9 +38,9 @@ class Player(Entity):
         if self.can_shoot == False:
             self.status = self.status.split('_')[0] + '_shoot'
 
-        # Duck
-        if self.on_floor and self.duck:
-            self.status = self.status.split('_')[0] + '_duck'
+        # Shoot up
+        if self.on_floor and self.shoot_up:
+            self.status = self.status.split('_')[0] + '_upshoot'
 
     def check_contact(self):
         bottom_rect = pygame.Rect(0,0,self.rect.width, 5)
@@ -62,20 +64,26 @@ class Player(Entity):
         else:
             self.direction.x = 0
 
-        if keys[pygame.K_UP] and self.on_floor:
+        if keys[pygame.K_LCTRL] and self.on_floor:
             self.direction.y = -self.jump_speed
 
-        if keys[pygame.K_DOWN]:
-            self.duck = True
+        if keys[pygame.K_UP]:
+            self.shoot_up = True
         else:
-            self.duck = False
+            self.shoot_up = False
 
         # Shoot
         if keys[pygame.K_SPACE] and self.can_shoot:
-            direction = Vector2(1,0) if self.status.split('_')[0] == 'right' else Vector2(-1,0)
-            pos = self.rect.center + direction * 40
-            y_offset = Vector2(0,-5) if not self.duck else Vector2(0,10)
-            self.shoot(pos + y_offset, direction, self)
+            if self.shoot_up:
+                direction = Vector2(0,-1)
+                pos = self.rect.center + direction * 50
+                y_offset = Vector2(15,-5) if self.status.split('_')[0] == 'right' else Vector2(-15,-5)
+                self.shoot(pos + y_offset, direction, self.shoot_up)
+            else:
+                direction = Vector2(1,0) if self.status.split('_')[0] == 'right' else Vector2(-1,0)
+                pos = self.rect.center + direction * 40
+                y_offset = Vector2(0,-5)
+                self.shoot(pos + y_offset, direction, self.shoot_up)
 
             # self.bullet_sound.play()
 
@@ -113,7 +121,7 @@ class Player(Entity):
             self.on_floor = False
 
     def move(self, dt):
-        if self.duck and self.on_floor:
+        if self.shoot_up and self.on_floor:
             self.direction.x  = 0
 
         # Horizontal Movement
@@ -139,17 +147,26 @@ class Player(Entity):
 
     def check_death(self):
         if self.health <= 0:
-            pygame.quit()
-            sys.exit()
+            self.pos.x = self.starting_pos[0]
+            self.rect.x = round(self.pos.x)
+            self.pos.y = self.starting_pos[1]
+            self.rect.y = round(self.pos.y)
+
+            self.health = 5
+
 
     def pickup(self, points):
         direction = Vector2(0,-1)
         pos = self.rect.topright
         self.point(pos, direction,points)
 
-    def finish_game(self):
-        pygame.quit()
-        sys.exit()
+    def health_pickup(self):
+        if self.health < 5:
+            self.health += 1
+            return True
+        else:
+            return False
+
 
     def update(self,dt):
         self.old_rect = self.rect.copy()

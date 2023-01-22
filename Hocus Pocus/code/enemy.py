@@ -16,6 +16,10 @@ class Dracodile(Entity):
         self.rect.width = 30
         self.cooldown = 1000
 
+        # Sound
+        self.shoot_sound = pygame.mixer.Sound('audio/shoot_low.mp3')
+        self.shoot_sound.set_volume(.3)
+
     def get_status(self):
         if self.direction.x == -1:
             self.status = 'left'
@@ -38,6 +42,8 @@ class Dracodile(Entity):
 
             self.can_shoot = False
             self.shoot_time = pygame.time.get_ticks()
+
+            self.shoot_sound.play()
 
     def collision(self,direction):
         # This literally detects if it's colliding with every sprite in the level

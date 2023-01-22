@@ -89,7 +89,11 @@ class Main:
         # Music
         self.music = pygame.mixer.Sound('audio/music.ogg')
         self.music.play(loops = -1)
-        self.music.set_volume(.3)
+        self.music.set_volume(.4)
+
+        self.win_music = pygame.mixer.Sound('audio/win_music.ogg')
+        self.win_music.set_volume(.4)
+        
 
         # Misc
         self.player_start_pos = None
@@ -221,6 +225,9 @@ class Main:
                 if sprite.health_pickup() == True:
                     pygame.sprite.spritecollide(sprite, self.health_pickups, True, pygame.sprite.collide_mask)
             if pygame.sprite.spritecollide(sprite, self.end_of_level_sprites, True, pygame.sprite.collide_mask):
+
+                self.music.stop()
+                self.win_music.play()
                 self.won_game = True
 
         # Enemy collisions

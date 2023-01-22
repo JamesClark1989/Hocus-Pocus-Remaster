@@ -25,6 +25,14 @@ class Player(Entity):
 
         self.health = 5
 
+        # Sound effects
+        self.jump_sound = pygame.mixer.Sound('audio/Jump.mp3')
+        self.jump_sound.set_volume(.2)
+        self.pickup_sound = pygame.mixer.Sound('audio/pickup.mp3')
+        self.pickup_sound.set_volume(.5)
+        self.shoot_sound = pygame.mixer.Sound('audio/shoot.mp3')
+        self.shoot_sound.set_volume(.5)
+
     def get_status(self):
         # Idle
         if self.direction.x == 0 and self.on_floor:
@@ -32,6 +40,7 @@ class Player(Entity):
 
         # Jump
         if self.direction.y != 0 and not self.on_floor:
+            
             self.status = self.status.split('_')[0] + '_jump'
 
         # Shoot
@@ -65,6 +74,7 @@ class Player(Entity):
             self.direction.x = 0
 
         if keys[pygame.K_LCTRL] and self.on_floor:
+            self.jump_sound.play()
             self.direction.y = -self.jump_speed
 
         if keys[pygame.K_UP]:
@@ -74,6 +84,7 @@ class Player(Entity):
 
         # Shoot
         if keys[pygame.K_SPACE] and self.can_shoot:
+            self.shoot_sound.play()
             if self.shoot_up:
                 direction = Vector2(0,-1)
                 pos = self.rect.center + direction * 50
@@ -156,6 +167,7 @@ class Player(Entity):
 
 
     def pickup(self, points):
+        self.pickup_sound.play()
         direction = Vector2(0,-1)
         pos = self.rect.topright
         self.point(pos, direction,points)

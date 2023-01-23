@@ -106,6 +106,12 @@ class Main:
         # Setup level with the map.tmx
         tmx_map = load_pygame('data\map.tmx')
         tile_size = 48
+        
+        self.platform_border_rects = []
+        for obj in tmx_map.get_layer_by_name("Enemy Blockers"):
+            if obj.name == "Blocker":
+                border_rect = pygame.Rect(obj.x,obj.y,obj.width,obj.height)
+                self.platform_border_rects.append(border_rect)
 
         # Tiles with collision
         for x,y,surf in tmx_map.get_layer_by_name('Level').tiles():
@@ -194,11 +200,6 @@ class Main:
                     path = 'graphics\pickups\health_potion',
                     points = 0)
 
-        self.platform_border_rects = []
-        for obj in tmx_map.get_layer_by_name("Enemy Blockers"):
-            if obj.name == "Blocker":
-                border_rect = pygame.Rect(obj.x,obj.y,obj.width,obj.height)
-                self.platform_border_rects.append(border_rect)
 
 
     def platform_collisions(self):

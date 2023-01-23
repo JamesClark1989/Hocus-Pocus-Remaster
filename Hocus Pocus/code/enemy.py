@@ -16,6 +16,8 @@ class Dracodile(Entity):
         self.rect.width = 30
         self.cooldown = 1000
 
+        self.invul_duration = 200
+
         # Sound
         self.shoot_sound = pygame.mixer.Sound('audio/shoot_low.mp3')
         self.shoot_sound.set_volume(.3)

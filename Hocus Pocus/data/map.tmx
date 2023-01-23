@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.1" orientation="orthogonal" renderorder="right-down" width="300" height="60" tilewidth="48" tileheight="48" infinite="0" nextlayerid="8" nextobjectid="111">
+<map version="1.9" tiledversion="1.9.1" orientation="orthogonal" renderorder="right-down" width="300" height="60" tilewidth="48" tileheight="48" infinite="0" nextlayerid="8" nextobjectid="118">
  <editorsettings>
   <chunksize width="48" height="48"/>
  </editorsettings>
@@ -302,16 +302,13 @@
   <object id="20" name="Thunder_Devil" x="1769.7" y="1630.3">
    <point/>
   </object>
-  <object id="21" name="Dracodile" x="2591.14" y="2402.05">
+  <object id="21" name="Dracodile" x="2591.14" y="2392.72">
    <point/>
   </object>
-  <object id="22" name="Dracodile" x="2726.67" y="2396">
+  <object id="22" name="Dracodile" x="2728.67" y="2386.67">
    <point/>
   </object>
   <object id="23" name="Dracodile" x="3005" y="2541">
-   <point/>
-  </object>
-  <object id="24" name="Dracodile" x="2863.67" y="2399.83">
    <point/>
   </object>
   <object id="25" name="Dracodile" x="2849.33" y="2540.33">
@@ -509,15 +506,36 @@
   <object id="110" name="Key" x="2038.67" y="1914.67">
    <point/>
   </object>
+  <object id="111" name="Crown" x="872" y="2828">
+   <point/>
+  </object>
+  <object id="112" name="Red_Gem" x="1010.67" y="2829.33">
+   <point/>
+  </object>
+  <object id="113" name="Red_Gem" x="1142.67" y="2832">
+   <point/>
+  </object>
+  <object id="114" name="Health_Potion" x="1977.33" y="2833.33">
+   <point/>
+  </object>
+  <object id="115" name="Red_Gem" x="4132" y="2574.67">
+   <point/>
+  </object>
+  <object id="116" name="Red_Gem" x="3885.33" y="2573.33">
+   <point/>
+  </object>
+  <object id="117" name="Red_Gem" x="4364" y="2576">
+   <point/>
+  </object>
  </objectgroup>
  <objectgroup id="6" name="Enemy Blockers">
-  <object id="44" name="Blocker" x="3014.5" y="2316" width="33.5" height="81"/>
-  <object id="45" name="Blocker" x="2510" y="2460" width="38" height="81.5"/>
-  <object id="48" name="Blocker" x="1913.25" y="2171.5" width="33.5" height="81"/>
-  <object id="79" name="Blocker" x="3649.08" y="2610.83" width="33.5" height="81"/>
-  <object id="81" name="Blocker" x="3859.08" y="2608.5" width="33.5" height="81"/>
-  <object id="82" name="Blocker" x="4117.25" y="2609.33" width="33.5" height="81"/>
-  <object id="83" name="Blocker" x="4338.25" y="2608" width="33.5" height="81"/>
+  <object id="44" name="Blocker" x="2985.17" y="2316" width="62.8333" height="81"/>
+  <object id="45" name="Blocker" x="2510" y="2460" width="62" height="81.5"/>
+  <object id="48" name="Blocker" x="1886.58" y="2171.5" width="60.1667" height="81"/>
+  <object id="79" name="Blocker" x="3583.75" y="2610.83" width="98.8333" height="81"/>
+  <object id="81" name="Blocker" x="3859.08" y="2608.5" width="88.1667" height="81"/>
+  <object id="82" name="Blocker" x="4062.58" y="2609.33" width="88.1667" height="81"/>
+  <object id="83" name="Blocker" x="4338.25" y="2608" width="88.1667" height="81"/>
   <object id="87" name="Devil_Blocker" x="3338.67" y="1970.67" width="26.6667" height="286.667"/>
   <object id="88" name="Devil_Blocker" x="2588" y="1963.33" width="26.6667" height="286.667"/>
   <object id="89" name="Devil_Blocker" x="3449.33" y="1583.33" width="26.6667" height="326.667"/>
